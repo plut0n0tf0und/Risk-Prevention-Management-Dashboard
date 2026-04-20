@@ -192,3 +192,36 @@ body {
     white-space: nowrap;
   }
 }
+
+/* Embed iframes */
+.embed-wrapper {
+  margin: 1.5rem 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.embed-wrapper iframe {
+  width: 100%;
+  height: 600px;
+  border: 1px solid #2e2e2e;
+  border-radius: 8px;
+  background: #111;
+}
+
+.embed-fallback-link {
+  font-size: 0.8rem;
+  color: #9b9b9b;
+  text-align: right;
+  text-decoration: none;
+}
+
+.embed-fallback-link:hover {
+  color: #e6e6e6;
+}
+
+@media (max-width: 768px) {
+  .embed-wrapper iframe {
+    height: 400px;
+  }
+}

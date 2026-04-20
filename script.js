@@ -47,11 +47,68 @@ function stripOuterTags(html) {
   // Remove Notion page title and page header icon (static icon)
   doc.querySelectorAll('.page-title, .page-header-icon, .page-header-icon-with-cover').forEach(el => el.remove());
 
+  // Convert known platform links to iframes
+  convertEmbedsInDoc(doc);
+
   // If it's a full HTML doc (Notion export), grab body content
   const body = doc.body;
   if (body) return body.innerHTML;
 
   return html;
+}
+
+function convertEmbedsInDoc(doc) {
+  doc.querySelectorAll('a').forEach(a => {
+    const href = a.href || '';
+    const embedUrl = resolveEmbedUrl(href);
+    if (!embedUrl) return;
+
+    const wrapper = doc.createElement('div');
+    wrapper.className = 'embed-wrapper';
+
+    const iframe = doc.createElement('iframe');
+    iframe.src = embedUrl;
+    iframe.allowFullscreen = true;
+    iframe.setAttribute('allow', 'fullscreen');
+    iframe.setAttribute('loading', 'lazy');
+
+    const fallback = doc.createElement('a');
+    fallback.href = href;
+    fallback.target = '_blank';
+    fallback.rel = 'noopener noreferrer';
+    fallback.className = 'embed-fallback-link';
+    fallback.textContent = 'Open in new tab ↗';
+
+    wrapper.appendChild(iframe);
+    wrapper.appendChild(fallback);
+
+    // Replace the closest block container or the link itself
+    const container = a.closest('.source') || a.closest('figure') || a;
+    container.replaceWith(wrapper);
+  });
+}
+
+function resolveEmbedUrl(href) {
+  if (!href) return null;
+
+  // Figma — proto or file links
+  if (href.includes('figma.com')) {
+    // Already an embed link
+    if (href.includes('embed.figma.com')) return href;
+    return `https://www.figma.com/embed?embed_host=share&url=${encodeURIComponent(href)}`;
+  }
+
+  // MockFlow
+  if (href.includes('mockflow.com')) {
+    return href; // MockFlow embed URLs work directly as iframes
+  }
+
+  // Framer
+  if (href.includes('framer.website') || href.includes('framer.com')) {
+    return href;
+  }
+
+  return null;
 }
 
 tabs.forEach(tab => {
@@ -71,4 +128,4 @@ tabs.forEach(tab => {
 });
 
 // Load first tab on init
-loadTab('tab1');
+loadTab('project-overview');
