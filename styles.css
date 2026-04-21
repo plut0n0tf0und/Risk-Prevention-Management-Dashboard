@@ -10,6 +10,7 @@ body {
   color: #e6e6e6;
   line-height: 1.6;
   padding: 20px;
+  overflow-x: hidden;
 }
 
 .page-container {
@@ -24,11 +25,44 @@ body {
   color: #ffffff;
 }
 
+.tabs-wrapper {
+  position: relative;
+}
+
 .tabs {
   display: flex;
   gap: 0;
   border-bottom: 1px solid #2e2e2e;
   margin-bottom: 2rem;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.tabs::-webkit-scrollbar {
+  display: none;
+}
+
+/* Fade + chevron indicator */
+.tabs-fade-right {
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 1px;
+  width: 48px;
+  background: linear-gradient(to right, transparent, #191919 70%);
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-right: 6px;
+  pointer-events: none;
+  font-size: 22px;
+  color: #9b9b9b;
+  transition: opacity 0.2s ease;
+}
+
+.tabs-fade-right.hidden {
+  opacity: 0;
 }
 
 .tab {
@@ -253,26 +287,46 @@ body {
 /* Content lists INSIDE nested toggles (e.g. Competitor Analysis under Discover) */
 .notion-content ul.toggle > li > details .bulleted-list {
   list-style: none !important;
-  padding-left: 20px;
+  padding-left: 4px;
 }
 
 .notion-content ul.toggle > li > details .bulleted-list > li {
   list-style: none !important;
   position: relative;
-  padding-left: 4px;
-  font-size: 15px !important;
-  color: #d4d4d4;
-  margin: 5px 0;
-  line-height: 1.6;
+  padding-left: 16px;
+  font-size: 14px !important;
+  font-weight: 500;
+  color: #c0c0c0;
+  margin: 10px 0 2px;
+  line-height: 1.5;
+  letter-spacing: 0.01em;
 }
 
 .notion-content ul.toggle > li > details .bulleted-list > li::before {
   content: '●';
   position: absolute;
-  left: -16px;
+  left: 0;
+  color: #555;
+  font-size: 7px;
+  top: 7px;
+}
+
+/* Paragraph text inside those items — lighter, smaller */
+.notion-content ul.toggle > li > details .bulleted-list > li p {
+  font-size: 14px !important;
+  font-weight: 400;
   color: #9b9b9b;
-  font-size: 8px;
-  top: 6px;
+  margin: 2px 0 6px;
+  line-height: 1.6;
+}
+/* Paragraph under each content item — clearly subordinate */
+.notion-content ul.toggle > li > details .bulleted-list > li > p,
+.notion-content ul.toggle > li > details .bulleted-list > li p {
+  font-size: 13px !important;
+  font-weight: 400;
+  color: #9b9b9b;
+  margin: 3px 0 0;
+  line-height: 1.55;
 }
 
 /* ── Toggles — universal structure-based ── */
@@ -309,7 +363,7 @@ body {
    Target ALL top-level summaries that are NOT inside another details */
 .notion-content details > summary {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 8px;
   font-size: 1.2rem !important;
   font-weight: 600;
@@ -321,6 +375,16 @@ body {
   list-style: none;
   transition: background 0.15s ease, color 0.15s ease;
   line-height: 1.4 !important;
+  word-break: break-word;
+}
+
+/* Text content inside summary wraps as one block */
+.notion-content details > summary > *,
+.notion-content details > summary strong {
+  display: inline;
+  font-size: inherit !important;
+  font-weight: inherit;
+  white-space: normal;
 }
 
 /* INNER toggles (nested inside another details) — H3 weight */
@@ -445,23 +509,94 @@ body {
 /* Mobile responsive */
 @media (max-width: 768px) {
   body {
-    padding: 15px;
+    padding: 12px;
+  }
+
+  .page-container {
+    padding: 0;
   }
 
   .page-title {
-    font-size: 2rem;
-    margin-bottom: 1.5rem;
+    font-size: 1.5rem;
+    margin-bottom: 1.25rem;
+    line-height: 1.2;
   }
 
+  /* Tabs — scrollable, bigger touch targets */
   .tabs {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
   }
 
   .tab {
-    font-size: 0.9rem;
-    padding: 0.65rem 1rem;
+    font-size: 0.875rem;
+    padding: 0.75rem 0.9rem;
     white-space: nowrap;
+    min-height: 44px; /* AA touch target */
+  }
+
+  /* Notion content */
+  .notion-content {
+    font-size: 15px;
+    padding: 4px 0 32px;
+  }
+
+  .notion-content h1 { font-size: 1.3rem; }
+  .notion-content h2 { font-size: 1.1rem; }
+  .notion-content h3 { font-size: 1rem; }
+
+  /* Reduce toggle indent on small screens */
+  .notion-content details > *:not(summary) {
+    padding-left: 8px;
+  }
+
+  .notion-content details details {
+    margin-left: 6px;
+  }
+
+  /* Summary touch target */
+  .notion-content details > summary {
+    min-height: 44px;
+    padding: 10px 6px;
+    font-size: 1rem !important;
+  }
+
+  .notion-content details details > summary {
+    font-size: 14px !important;
+    min-height: 40px;
+  }
+
+  /* Tables — horizontal scroll on mobile */
+  .notion-content table {
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    white-space: nowrap;
+  }
+
+  /* Notion column-list — stack vertically */
+  .notion-content .column-list {
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  /* Images full width */
+  .notion-content img {
+    width: 100%;
+  }
+
+  /* Embeds */
+  .embed-wrapper iframe {
+    height: 300px;
+  }
+
+  .embed-container {
+    height: 380px;
+  }
+
+  .mockflow-embed iframe {
+    width: 110%;
+    height: 110%;
+    transform: scale(1.1);
   }
 }
 
@@ -484,12 +619,13 @@ body {
 /* Shared embed container */
 .embed-container {
   width: 100%;
-  height: 650px;
+  max-width: 100%;
   overflow: hidden;
   border-radius: 8px;
   border: 1px solid #2e2e2e;
   margin: 1.5rem 0;
   position: relative;
+  box-sizing: border-box;
 }
 
 /* Default iframe inside container */
@@ -497,26 +633,46 @@ body {
   width: 100%;
   height: 100%;
   border: none;
+  display: block;
 }
 
-/* Figma — clean, no scaling */
+/* Figma — clean, fixed height */
+.figma-embed {
+  height: 550px;
+}
+
 .figma-embed iframe {
   transform: none;
   width: 100%;
   height: 100%;
 }
 
-/* MockFlow — scaled for readability */
+/* MockFlow — contained, no overflow */
 .mockflow-embed {
-  overflow: auto;
+  height: 500px;
+  overflow: hidden;
 }
 
 .mockflow-embed iframe {
-  width: 120%;
-  height: 120%;
-  transform: scale(1.2);
-  transform-origin: top left;
+  width: 100%;
+  height: 100%;
+  transform: none;
   pointer-events: all;
+}
+
+@media (max-width: 768px) {
+  .figma-embed {
+    height: 380px;
+  }
+
+  .mockflow-embed {
+    height: 320px;
+  }
+
+  .embed-container iframe {
+    width: 100% !important;
+    transform: none !important;
+  }
 }
 
 .embed-fallback-link {

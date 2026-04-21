@@ -1,6 +1,20 @@
 const tabs = document.querySelectorAll('.tab');
 const contentEl = document.getElementById('tab-content');
+const tabsEl = document.querySelector('.tabs');
+const fadeRight = document.querySelector('.tabs-fade-right');
 const cache = {};
+
+// Show/hide scroll indicator
+function updateFadeIndicator() {
+  if (!tabsEl || !fadeRight) return;
+  const atEnd = tabsEl.scrollLeft + tabsEl.clientWidth >= tabsEl.scrollWidth - 4;
+  fadeRight.classList.toggle('hidden', atEnd);
+}
+
+if (tabsEl) {
+  tabsEl.addEventListener('scroll', updateFadeIndicator);
+  updateFadeIndicator();
+}
 
 async function loadTab(tabId) {
   if (cache[tabId]) {
@@ -175,18 +189,15 @@ function resolveEmbedUrl(href) {
   }
 
   // Figma — already an embed link
+  // Skip broken Notion exports where iframe HTML was pasted as a link text
   if (href.includes('embed.figma.com') || href.includes('figma.com/embed')) {
+    if (href.startsWith('http://<') || href.includes('%3Ciframe') || href.includes('<iframe')) return null;
     return href;
   }
 
   // MockFlow
   if (href.includes('mockflow.com')) {
     return href.replace(/zoom=\d+/, 'zoom=100');
-  }
-
-  // Framer
-  if (href.includes('framer.website') || href.includes('framer.com')) {
-    return href;
   }
 
   return null;
