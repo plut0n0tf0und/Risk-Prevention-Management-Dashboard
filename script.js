@@ -37,6 +37,11 @@ function renderContent(html) {
     contentEl.innerHTML = '';
     contentEl.appendChild(wrapper);
     contentEl.classList.remove('fade-out');
+
+    // Close all Notion toggles by default
+    contentEl.querySelectorAll('.notion-content details').forEach(el => {
+      el.removeAttribute('open');
+    });
   }, 150);
 }
 
@@ -44,8 +49,26 @@ function stripOuterTags(html) {
   const parser = new DOMParser();
   const doc = parser.parseFromString(html, 'text/html');
 
+  // Remove Notion internal bookmark cards (e.g. links to notion.so pages)
+  doc.querySelectorAll('a.bookmark.source, a[class*="bookmark"]').forEach(a => {
+    if (a.href && a.href.includes('notion.so')) {
+      const block = a.closest('figure') || a.closest('div[style]') || a.parentElement;
+      if (block) block.remove();
+      else a.remove();
+    }
+  });
+
   // Remove Notion page title and page header icon (static icon)
   doc.querySelectorAll('.page-title, .page-header-icon, .page-header-icon-with-cover').forEach(el => el.remove());
+
+  // Remove any element whose summary/heading text contains "Popup text 2"
+  doc.querySelectorAll('details, h1, h2, h3, h4, p, summary').forEach(el => {
+    if (el.textContent.trim().toLowerCase().includes('popup text 2')) {
+      const block = el.closest('details') || el.closest('div[style]') || el.parentElement;
+      if (block) block.remove();
+      else el.remove();
+    }
+  });
 
   // Convert known platform links to iframes
   convertEmbedsInDoc(doc);
@@ -63,8 +86,10 @@ function convertEmbedsInDoc(doc) {
     const embedUrl = resolveEmbedUrl(href);
     if (!embedUrl) return;
 
+    const isMockFlow = href.includes('mockflow.com');
+
     const wrapper = doc.createElement('div');
-    wrapper.className = 'embed-wrapper';
+    wrapper.className = isMockFlow ? 'embed-container' : 'embed-wrapper';
 
     const iframe = doc.createElement('iframe');
     iframe.src = embedUrl;
@@ -100,7 +125,8 @@ function resolveEmbedUrl(href) {
 
   // MockFlow
   if (href.includes('mockflow.com')) {
-    return href; // MockFlow embed URLs work directly as iframes
+    // Force zoom=100 for best clarity, we handle visual scaling via CSS
+    return href.replace(/zoom=\d+/, 'zoom=100');
   }
 
   // Framer
