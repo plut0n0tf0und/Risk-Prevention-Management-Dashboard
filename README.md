@@ -5,7 +5,7 @@ A clean, dark-themed tabbed layout inspired by Notion. Designed to load external
 ## Structure
 
 ```
-/index.html       - Main page
+/index.html       - d page
 /styles.css       - Dark theme styles
 /script.js        - Tab switching logic
 /content/         - Folder for Notion exports

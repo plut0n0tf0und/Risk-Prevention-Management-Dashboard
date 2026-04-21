@@ -4,7 +4,7 @@ const cache = {};
 
 async function loadTab(tabId) {
   if (cache[tabId]) {
-    renderContent(cache[tabId]);
+    renderContent(cache[tabId], tabId);
     return;
   }
 
@@ -15,14 +15,14 @@ async function loadTab(tabId) {
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const html = await res.text();
     cache[tabId] = html;
-    renderContent(html);
+    renderContent(html, tabId);
   } catch (err) {
     contentEl.innerHTML = `<div class="loading">Failed to load content.</div>`;
-    console.error(`Could not load /content/${tabId}.html:`, err);
+    console.error(`Could not load /content/${tabId}/index.html:`, err);
   }
 }
 
-function renderContent(html) {
+function renderContent(html, tabId) {
   contentEl.classList.add('fade-out');
 
   setTimeout(() => {
@@ -31,7 +31,7 @@ function renderContent(html) {
     wrapper.className = 'notion-content';
 
     // Strip <html>, <head>, <body> tags from Notion exports — keep inner content
-    const cleaned = stripOuterTags(html);
+    const cleaned = stripOuterTags(html, tabId);
     wrapper.innerHTML = cleaned;
 
     contentEl.innerHTML = '';
@@ -45,7 +45,7 @@ function renderContent(html) {
   }, 150);
 }
 
-function stripOuterTags(html) {
+function stripOuterTags(html, tabId) {
   const parser = new DOMParser();
   const doc = parser.parseFromString(html, 'text/html');
 
@@ -62,8 +62,10 @@ function stripOuterTags(html) {
   doc.querySelectorAll('.page-title, .page-header-icon, .page-header-icon-with-cover').forEach(el => el.remove());
 
   // Remove any element whose summary/heading text contains "Popup text 2"
+  // Also remove "Project Overview" dropdown on non-overview tabs
   doc.querySelectorAll('details, h1, h2, h3, h4, p, summary').forEach(el => {
-    if (el.textContent.trim().toLowerCase().includes('popup text 2')) {
+    const text = el.textContent.trim().toLowerCase();
+    if (text.includes('popup text 2')) {
       const block = el.closest('details') || el.closest('div[style]') || el.parentElement;
       if (block) block.remove();
       else el.remove();
@@ -73,11 +75,62 @@ function stripOuterTags(html) {
   // Convert known platform links to iframes
   convertEmbedsInDoc(doc);
 
+  // Clean up junk blocks (pass tabId to skip removal on relevant tabs)
+  removeJunkBlocks(doc, tabId);
+
   // If it's a full HTML doc (Notion export), grab body content
   const body = doc.body;
   if (body) return body.innerHTML;
 
   return html;
+}
+
+function removeJunkBlocks(doc, tabId) {
+  // Remove "Project Overview" dropdown only on non-overview tabs
+  if (tabId !== 'project-overview') {
+    doc.querySelectorAll('details').forEach(details => {
+      const summary = details.querySelector('summary');
+      if (summary && summary.textContent.trim().toLowerCase() === 'project overview') {
+        details.remove();
+      }
+    });
+  }
+
+  // Remove junk headings like "General"
+  doc.querySelectorAll('h1, h2, h3, h4, h5, h6').forEach(el => {
+    const text = el.textContent.trim().toLowerCase();
+    if (text === 'general') {
+      const wrapper = el.closest('div[style]') || el.parentElement;
+      if (wrapper && wrapper !== doc.body) wrapper.remove();
+      else el.remove();
+    }
+  });
+
+  // Remove junk headings: "General" and similar noise
+  doc.querySelectorAll('h1, h2, h3, h4, h5, h6').forEach(el => {
+    const text = el.textContent.trim().toLowerCase();
+    if (text === 'general') {
+      el.remove();
+    }
+  });
+  // These are toggles acting as list items — remove the bullet wrapper
+  doc.querySelectorAll('ul.toggle').forEach(ul => {
+    ul.style.listStyle = 'none';
+    ul.style.paddingLeft = '0';
+    ul.querySelectorAll('li').forEach(li => {
+      li.style.listStyle = 'none';
+    });
+  });
+
+  // Remove inline list-style from <li> that directly contain <details>
+  // These are toggle wrappers, not content bullets
+  doc.querySelectorAll('li').forEach(li => {
+    if (li.querySelector(':scope > details')) {
+      li.style.listStyle = 'none';
+      li.style.paddingLeft = '0';
+      li.style.marginLeft = '0';
+    }
+  });
 }
 
 function convertEmbedsInDoc(doc) {
@@ -87,9 +140,10 @@ function convertEmbedsInDoc(doc) {
     if (!embedUrl) return;
 
     const isMockFlow = href.includes('mockflow.com');
+    const isFigma = href.includes('figma.com');
 
     const wrapper = doc.createElement('div');
-    wrapper.className = isMockFlow ? 'embed-container' : 'embed-wrapper';
+    wrapper.className = 'embed-container' + (isMockFlow ? ' mockflow-embed' : '') + (isFigma ? ' figma-embed' : '');
 
     const iframe = doc.createElement('iframe');
     iframe.src = embedUrl;
@@ -107,7 +161,6 @@ function convertEmbedsInDoc(doc) {
     wrapper.appendChild(iframe);
     wrapper.appendChild(fallback);
 
-    // Replace the closest block container or the link itself
     const container = a.closest('.source') || a.closest('figure') || a;
     container.replaceWith(wrapper);
   });
@@ -116,16 +169,18 @@ function convertEmbedsInDoc(doc) {
 function resolveEmbedUrl(href) {
   if (!href) return null;
 
-  // Figma — proto or file links
-  if (href.includes('figma.com')) {
-    // Already an embed link
-    if (href.includes('embed.figma.com')) return href;
+  // Figma — proto links
+  if (href.includes('figma.com/proto')) {
     return `https://www.figma.com/embed?embed_host=share&url=${encodeURIComponent(href)}`;
+  }
+
+  // Figma — already an embed link
+  if (href.includes('embed.figma.com') || href.includes('figma.com/embed')) {
+    return href;
   }
 
   // MockFlow
   if (href.includes('mockflow.com')) {
-    // Force zoom=100 for best clarity, we handle visual scaling via CSS
     return href.replace(/zoom=\d+/, 'zoom=100');
   }
 

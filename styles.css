@@ -80,87 +80,70 @@ body {
   padding: 3rem;
 }
 
-/* Notion content wrapper - scoped styles */
+/* ─────────────────────────────────────────
+   NOTION CONTENT — Universal Design System
+   Styles based on structure, not page content
+   Works for Design, Development, any export
+───────────────────────────────────────── */
+
 .notion-content {
   font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 16px;
+  color: #d4d4d4;
+  line-height: 1.6;
+  padding: 4px 0 40px;
+  max-width: 100%;
+}
+
+/* ── Headings ── */
+.notion-content h1 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #ffffff;
+  margin: 32px 0 10px;
+  line-height: 1.3;
+}
+
+.notion-content h2 {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #ffffff;
+  margin: 24px 0 8px;
+  line-height: 1.4;
+}
+
+.notion-content h3,
+.notion-content details h3 {
   font-size: 15px;
-  color: #e6e6e6;
-  line-height: 1.7;
+  font-weight: 500;
+  color: #dcdcdc;
+  margin: 10px 0 4px;
+  line-height: 1.4;
 }
 
-/* Headings */
-.notion-content h1,
-.notion-content h2,
-.notion-content h3 {
-  color: #ffffff;
-  margin: 28px 0 10px;
-  font-weight: 600;
-}
-
-.notion-content h1 { font-size: 1.875rem; }
-.notion-content h2 { font-size: 1.5rem; }
-.notion-content h3 { font-size: 1.25rem; }
-
-/* Paragraphs & list items spacing */
-.notion-content p,
-.notion-content li {
-  line-height: 1.7;
-  margin: 6px 0;
-}
-
-.notion-content p {
-  margin-bottom: 0.75rem;
-}
-
-/* Remove bullets from top-level lists, treat as section headers */
-.notion-content > ul,
-.notion-content .page-body > div > ul,
-.notion-content .indented > div > ul {
-  list-style: none;
-  padding-left: 0;
-}
-
-.notion-content > ul > li,
-.notion-content .page-body > div > ul > li,
-.notion-content .indented > div > ul > li {
-  font-size: 17px;
-  font-weight: 600;
-  margin: 16px 0;
-  color: #ffffff;
-}
-
-/* Nested lists — keep bullets */
-.notion-content ul ul {
-  list-style: disc;
-  padding-left: 20px;
+.notion-content h4,
+.notion-content details h4 {
   font-size: 14px;
-  font-weight: 400;
-  color: #e6e6e6;
+  font-weight: 500;
+  color: #c8c8c8;
+  margin: 8px 0 4px;
 }
 
-.notion-content ul ul ul {
-  list-style: circle;
-  padding-left: 20px;
-}
-
-/* Bulleted list Notion class overrides */
-.notion-content .bulleted-list {
-  list-style: disc;
-  padding-left: 1.5rem;
-}
-
-.notion-content .bulleted-list > li {
+/* ── Paragraphs ── */
+.notion-content p {
   font-size: 15px;
-  font-weight: 400;
-  color: #e6e6e6;
+  line-height: 1.65;
+  margin: 0 0 8px;
+  color: #d4d4d4;
 }
 
-/* Strong */
+/* ── Strong ── */
 .notion-content strong {
+  font-weight: 600;
   color: #ffffff;
 }
 
-/* Links */
+/* ── Links ── */
 .notion-content a {
   color: #58a6ff;
   text-decoration: none;
@@ -170,87 +153,293 @@ body {
   text-decoration: underline;
 }
 
-/* Code */
+/* ── Lists — universal reset ── */
+.notion-content ul,
+.notion-content ol {
+  list-style: none;
+  padding-left: 0;
+  margin: 6px 0;
+}
+
+.notion-content li {
+  margin: 4px 0;
+  line-height: 1.6;
+  font-size: 15px;
+  color: #d4d4d4;
+}
+
+/* Reset markers globally — let scoped rules handle it */
+.notion-content li::marker {
+  content: normal;
+}
+
+/* Summary — never show bullet */
+.notion-content summary {
+  list-style: none;
+  display: flex;
+}
+
+/* Lists INSIDE toggles — always show bullets */
+.notion-content details ul {
+  list-style: disc;
+  padding-left: 18px;
+  margin: 6px 0;
+}
+
+.notion-content details ol {
+  list-style: decimal;
+  padding-left: 18px;
+  margin: 6px 0;
+}
+
+/* Nested lists inside toggles */
+.notion-content details ul ul {
+  list-style: circle;
+  padding-left: 16px;
+}
+
+.notion-content details li {
+  margin: 4px 0;
+  line-height: 1.6;
+  font-size: 15px !important;
+  color: #d4d4d4;
+}
+
+.notion-content details li::marker {
+  color: #8a8a8a;
+}
+
+.notion-content details ul ul li::marker {
+  color: #6a6a6a;
+}
+
+/* Notion .bulleted-list class — always bullets */
+.notion-content .bulleted-list {
+  list-style: disc;
+  padding-left: 18px;
+}
+
+.notion-content .bulleted-list > li {
+  list-style: disc;
+  font-size: 15px !important;
+  font-weight: 400;
+  color: #d4d4d4;
+  margin: 4px 0;
+  line-height: 1.6;
+}
+
+.notion-content .bulleted-list > li::marker {
+  color: #8a8a8a;
+}
+
+/* Notion toggle lists — <ul class="toggle"> wrapping <details> */
+.notion-content ul.toggle {
+  list-style: none !important;
+  padding-left: 0 !important;
+  margin: 4px 0;
+}
+
+.notion-content ul.toggle > li {
+  list-style: none !important;
+  padding-left: 0 !important;
+}
+
+.notion-content ul.toggle > li::before,
+.notion-content ul.toggle > li::marker {
+  content: none !important;
+  display: none;
+}
+
+/* Content lists INSIDE nested toggles (e.g. Competitor Analysis under Discover) */
+.notion-content ul.toggle > li > details .bulleted-list {
+  list-style: none !important;
+  padding-left: 20px;
+}
+
+.notion-content ul.toggle > li > details .bulleted-list > li {
+  list-style: none !important;
+  position: relative;
+  padding-left: 4px;
+  font-size: 15px !important;
+  color: #d4d4d4;
+  margin: 5px 0;
+  line-height: 1.6;
+}
+
+.notion-content ul.toggle > li > details .bulleted-list > li::before {
+  content: '●';
+  position: absolute;
+  left: -16px;
+  color: #9b9b9b;
+  font-size: 8px;
+  top: 6px;
+}
+
+/* ── Toggles — universal structure-based ── */
+.notion-content details {
+  margin: 12px 0;
+  list-style: none;
+}
+
+/* Top-level toggles — clear gap, H2-level */
+.notion-content > details {
+  margin: 20px 0 8px;
+}
+
+/* All content inside toggles — indented, no border line */
+.notion-content details > *:not(summary) {
+  margin-top: 6px;
+  padding-left: 12px;
+}
+
+/* Nested toggles — tighter */
+.notion-content details details {
+  margin: 4px 0 4px 10px;
+  border-left: none;
+  padding-left: 0;
+}
+
+.notion-content details details > *:not(summary) {
+  padding-left: 10px;
+  border-left: none;
+}
+
+/* TOP-LEVEL toggles — H2 weight
+   Notion wraps in div[style="display:contents"] so > child selector fails.
+   Target ALL top-level summaries that are NOT inside another details */
+.notion-content details > summary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 1.2rem !important;
+  font-weight: 600;
+  color: #efefef;
+  cursor: pointer;
+  padding: 8px 6px;
+  border-radius: 6px;
+  user-select: none;
+  list-style: none;
+  transition: background 0.15s ease, color 0.15s ease;
+  line-height: 1.4 !important;
+}
+
+/* INNER toggles (nested inside another details) — H3 weight */
+.notion-content details details > summary {
+  font-size: 15px !important;
+  font-weight: 500;
+  color: #dcdcdc;
+  padding: 5px 6px;
+}
+
+.notion-content details > summary::-webkit-details-marker {
+  display: none;
+}
+
+/* Remove any marker from summary */
+.notion-content details > summary::marker,
+.notion-content details details > summary::marker {
+  content: "";
+}
+
+.notion-content details > summary::before {
+  content: '›';
+  font-size: 18px;
+  line-height: 1;
+  flex-shrink: 0;
+  transform: rotate(0deg);
+  transition: transform 0.2s ease;
+  color: #9b9b9b;
+}
+
+.notion-content details[open] > summary::before {
+  transform: rotate(90deg);
+}
+
+.notion-content details[open] > summary {
+  color: #ffffff;
+}
+
+.notion-content details > summary:hover {
+  background: rgba(255,255,255,0.05);
+  color: #ffffff;
+}
+
+/* ── Indented blocks ── */
+.notion-content .indented {
+  padding-left: 1rem;
+  border-left: 2px solid #2a2a2a;
+  margin: 6px 0;
+}
+
+/* ── Dividers — hidden ── */
+.notion-content hr {
+  display: none;
+}
+
+/* ── Blockquote ── */
+.notion-content blockquote {
+  border-left: 3px solid #3e3e3e;
+  padding-left: 1rem;
+  margin: 12px 0;
+  color: #9b9b9b;
+  font-size: 14px;
+}
+
+/* ── Code ── */
 .notion-content code {
   background: #2d2d2d;
-  padding: 0.2rem 0.4rem;
+  padding: 0.15rem 0.35rem;
   border-radius: 3px;
-  font-size: 0.9em;
+  font-size: 0.875em;
   font-family: 'Courier New', monospace;
+  color: #e6e6e6;
 }
 
 .notion-content pre {
   background: #2d2d2d;
   padding: 1rem;
-  border-radius: 5px;
+  border-radius: 6px;
   overflow-x: auto;
-  margin-bottom: 1rem;
+  margin: 12px 0;
+  font-size: 13px;
 }
 
-/* Blockquote */
-.notion-content blockquote {
-  border-left: 3px solid #3e3e3e;
-  padding-left: 1rem;
-  margin: 1rem 0;
-  color: #9b9b9b;
-}
-
-/* Images */
+/* ── Images ── */
 .notion-content img {
   max-width: 100%;
   height: auto;
-  border-radius: 5px;
-  margin: 1rem 0;
+  border-radius: 6px;
+  margin: 12px 0;
+  display: block;
 }
 
-/* Tables */
+/* ── Tables ── */
 .notion-content table {
   width: 100%;
   border-collapse: collapse;
-  margin: 1rem 0;
+  margin: 12px 0;
+  font-size: 14px;
 }
 
 .notion-content th,
 .notion-content td {
-  border: 1px solid #3e3e3e;
-  padding: 0.75rem;
+  border: 1px solid #2e2e2e;
+  padding: 8px 12px;
   text-align: left;
+  line-height: 1.5;
 }
 
 .notion-content th {
-  background: #2d2d2d;
-  font-weight: 600;
+  background: #242424;
+  font-weight: 500;
   color: #9b9b9b;
+  font-size: 13px;
 }
 
-/* Notion toggle/details */
-.notion-content details {
-  margin: 12px 0;
-}
-
-.notion-content details summary {
-  cursor: pointer;
-  color: #ffffff;
-  font-weight: 600;
-}
-
-.notion-content details summary:hover {
-  color: #e6e6e6;
-}
-
-/* Notion indented blocks */
-.notion-content .indented {
-  padding-left: 1.25rem;
-  border-left: 2px solid #2e2e2e;
-  margin: 8px 0;
-}
-
-/* Dividers — subtle, not harsh */
-.notion-content hr {
-  border: none;
-  height: 1px;
-  background: rgba(255,255,255,0.08);
-  margin: 24px 0;
+/* ── Desktop scale-up ── */
+@media (min-width: 768px) {
+  .notion-content h1 { font-size: 1.75rem; }
+  .notion-content h2 { font-size: 1.35rem; }
 }
 
 /* Mobile responsive */
@@ -292,11 +481,51 @@ body {
   background: #111;
 }
 
+/* Shared embed container */
+.embed-container {
+  width: 100%;
+  height: 650px;
+  overflow: hidden;
+  border-radius: 8px;
+  border: 1px solid #2e2e2e;
+  margin: 1.5rem 0;
+  position: relative;
+}
+
+/* Default iframe inside container */
+.embed-container iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+/* Figma — clean, no scaling */
+.figma-embed iframe {
+  transform: none;
+  width: 100%;
+  height: 100%;
+}
+
+/* MockFlow — scaled for readability */
+.mockflow-embed {
+  overflow: auto;
+}
+
+.mockflow-embed iframe {
+  width: 120%;
+  height: 120%;
+  transform: scale(1.2);
+  transform-origin: top left;
+  pointer-events: all;
+}
+
 .embed-fallback-link {
+  display: block;
   font-size: 0.8rem;
   color: #9b9b9b;
   text-align: right;
   text-decoration: none;
+  margin-top: 4px;
 }
 
 .embed-fallback-link:hover {
@@ -307,34 +536,12 @@ body {
   .embed-wrapper iframe {
     height: 400px;
   }
-}
 
-/* MockFlow embed container with CSS scaling */
-.embed-container {
-  width: 100%;
-  height: 650px;
-  overflow: auto;
-  border-radius: 8px;
-  border: 1px solid #2e2e2e;
-  margin: 1.5rem 0;
-  position: relative;
-}
-
-.embed-container iframe {
-  width: 120%;
-  height: 120%;
-  border: none;
-  transform: scale(1.2);
-  transform-origin: top left;
-  pointer-events: all;
-}
-
-@media (max-width: 768px) {
   .embed-container {
     height: 450px;
   }
 
-  .embed-container iframe {
+  .mockflow-embed iframe {
     width: 110%;
     height: 110%;
     transform: scale(1.1);
