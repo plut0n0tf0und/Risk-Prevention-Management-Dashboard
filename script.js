@@ -90,6 +90,14 @@ function stripOuterTags(html, tabId) {
   const parser = new DOMParser();
   const doc = parser.parseFromString(html, 'text/html');
 
+  // Remove links wrapping images — unwrap the img, remove the anchor
+  doc.querySelectorAll('a').forEach(a => {
+    const img = a.querySelector('img');
+    if (img) {
+      a.replaceWith(img);
+    }
+  });
+
   // Fix relative image paths — rewrite to include the tab's folder path
   doc.querySelectorAll('img').forEach(img => {
     const src = img.getAttribute('src');
