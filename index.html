@@ -36,7 +36,11 @@
 
       const btn = document.createElement('a');
       btn.href = 'https://vigneshdesignspace.framer.website/#case-study';
-      btn.textContent = '← Back to Vicki\'s Portfolio';
+      btn.textContent = '←';
+      const span = document.createElement('span');
+      span.textContent = 'Back to Vicki\'s Portfolio';
+      span.style.marginLeft = '8px';
+      btn.appendChild(span);
       btn.id = 'back-to-portfolio';
 
       Object.assign(btn.style, {
