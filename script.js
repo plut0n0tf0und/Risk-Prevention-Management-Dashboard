@@ -2,7 +2,7 @@ const tabs = document.querySelectorAll('.tab');
 const contentEl = document.getElementById('tab-content');
 const tabsEl = document.querySelector('.tabs');
 const fadeRight = document.querySelector('.tabs-fade-right');
-const cache = {};
+const cache = {}; // Clear cache on every load — no stale content
 
 // Show/hide scroll indicator
 function updateFadeIndicator() {
@@ -16,6 +16,11 @@ if (tabsEl) {
   updateFadeIndicator();
 }
 
+// Tab-specific filenames (override default index.html)
+const tabFiles = {
+  'development': 'Development 2523ea1c5d53823dbd3401c1aa6854ce.html'
+};
+
 async function loadTab(tabId) {
   if (cache[tabId]) {
     renderContent(cache[tabId], tabId);
@@ -24,15 +29,17 @@ async function loadTab(tabId) {
 
   contentEl.innerHTML = '<div class="loading">Loading...</div>';
 
+  const filename = tabFiles[tabId] || 'index.html';
+
   try {
-    const res = await fetch(`/content/${tabId}/index.html`);
+    const res = await fetch(`/content/${tabId}/${filename}`);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const html = await res.text();
     cache[tabId] = html;
     renderContent(html, tabId);
   } catch (err) {
     contentEl.innerHTML = `<div class="loading">Failed to load content.</div>`;
-    console.error(`Could not load /content/${tabId}/index.html:`, err);
+    console.error(`Could not load /content/${tabId}/${filename}:`, err);
   }
 }
 
@@ -48,13 +55,33 @@ function renderContent(html, tabId) {
     const cleaned = stripOuterTags(html, tabId);
     wrapper.innerHTML = cleaned;
 
+    // Remove any text nodes containing figma.com URLs
+    const walker = document.createTreeWalker(wrapper, NodeFilter.SHOW_TEXT);
+    const nodesToClean = [];
+    while (walker.nextNode()) {
+      if (walker.currentNode.textContent.includes('figma.com')) {
+        nodesToClean.push(walker.currentNode);
+      }
+    }
+    nodesToClean.forEach(node => {
+      const parent = node.parentElement;
+      node.textContent = node.textContent.replace(/https?:\/\/[^\s]*figma\.com[^\s]*/g, '');
+      if (parent && parent.textContent.trim() === '') parent.remove();
+    });
+
     contentEl.innerHTML = '';
     contentEl.appendChild(wrapper);
     contentEl.classList.remove('fade-out');
 
-    // Close all Notion toggles by default
-    contentEl.querySelectorAll('.notion-content details').forEach(el => {
-      el.removeAttribute('open');
+    // Open top-level accordions, close nested ones
+    const allDetails = contentEl.querySelectorAll('.notion-content details');
+    allDetails.forEach(details => {
+      const isNested = details.parentElement.closest('details');
+      if (isNested) {
+        details.removeAttribute('open');
+      } else {
+        details.setAttribute('open', '');
+      }
     });
   }, 150);
 }
@@ -62,6 +89,15 @@ function renderContent(html, tabId) {
 function stripOuterTags(html, tabId) {
   const parser = new DOMParser();
   const doc = parser.parseFromString(html, 'text/html');
+
+  // Remove ALL figma links and their containers
+  doc.querySelectorAll('a').forEach(a => {
+    if ((a.href || '').includes('figma.com') || (a.textContent || '').includes('figma.com')) {
+      const container = a.closest('figure') || a.closest('div[style]') || a.parentElement;
+      if (container && container !== doc.body) container.remove();
+      else a.remove();
+    }
+  });
 
   // Remove Notion internal bookmark cards (e.g. links to notion.so pages)
   doc.querySelectorAll('a.bookmark.source, a[class*="bookmark"]').forEach(a => {
@@ -183,16 +219,9 @@ function convertEmbedsInDoc(doc) {
 function resolveEmbedUrl(href) {
   if (!href) return null;
 
-  // Figma — proto links
-  if (href.includes('figma.com/proto')) {
-    return `https://www.figma.com/embed?embed_host=share&url=${encodeURIComponent(href)}`;
-  }
-
-  // Figma — already an embed link
-  // Skip broken Notion exports where iframe HTML was pasted as a link text
-  if (href.includes('embed.figma.com') || href.includes('figma.com/embed')) {
-    if (href.startsWith('http://<') || href.includes('%3Ciframe') || href.includes('<iframe')) return null;
-    return href;
+  // Figma links — disabled, removed from design tab
+  if (href.includes('figma.com')) {
+    return null;
   }
 
   // MockFlow

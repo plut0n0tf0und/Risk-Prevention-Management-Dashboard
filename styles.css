@@ -1,3 +1,7 @@
+html {
+  scroll-behavior: smooth;
+}
+
 * {
   margin: 0;
   padding: 0;
@@ -11,6 +15,8 @@ body {
   line-height: 1.6;
   padding: 20px;
   overflow-x: hidden;
+  /* Material-style momentum scroll on iOS */
+  -webkit-overflow-scrolling: touch;
 }
 
 .page-container {
@@ -43,26 +49,32 @@ body {
   display: none;
 }
 
-/* Fade + chevron indicator */
+/* Fade + chevron indicator — mobile only */
 .tabs-fade-right {
-  position: absolute;
-  right: 0;
-  top: 0;
-  bottom: 1px;
-  width: 48px;
-  background: linear-gradient(to right, transparent, #191919 70%);
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  padding-right: 6px;
-  pointer-events: none;
-  font-size: 22px;
-  color: #9b9b9b;
-  transition: opacity 0.2s ease;
+  display: none;
 }
 
-.tabs-fade-right.hidden {
-  opacity: 0;
+@media (max-width: 768px) {
+  .tabs-fade-right {
+    display: flex;
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 1px;
+    width: 48px;
+    background: linear-gradient(to right, transparent, #191919 70%);
+    align-items: center;
+    justify-content: flex-end;
+    padding-right: 6px;
+    pointer-events: none;
+    font-size: 22px;
+    color: #9b9b9b;
+    transition: opacity 0.2s ease;
+  }
+
+  .tabs-fade-right.hidden {
+    opacity: 0;
+  }
 }
 
 .tab {
@@ -97,6 +109,9 @@ body {
 
 .tab-content-wrapper {
   min-height: 400px;
+  /* GPU layer — smoother scroll rendering */
+  will-change: scroll-position;
+  transform: translateZ(0);
 }
 
 .tab-content {
@@ -127,6 +142,9 @@ body {
   line-height: 1.6;
   padding: 4px 0 40px;
   max-width: 100%;
+  /* Promote to GPU layer for smooth rendering */
+  transform: translateZ(0);
+  backface-visibility: hidden;
 }
 
 /* ── Headings ── */
@@ -177,10 +195,12 @@ body {
   color: #ffffff;
 }
 
-/* ── Links ── */
+/* Prevent long URLs from breaking layout */
 .notion-content a {
   color: #58a6ff;
   text-decoration: none;
+  word-break: break-all;
+  overflow-wrap: anywhere;
 }
 
 .notion-content a:hover {
