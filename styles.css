@@ -136,7 +136,7 @@ body {
 ───────────────────────────────────────── */
 
 .notion-content {
-  font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family: 'Sen', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   font-size: 16px;
   color: #d4d4d4;
   line-height: 1.6;
@@ -149,41 +149,63 @@ body {
 
 /* ── Headings ── */
 .notion-content h1 {
-  font-size: 1.5rem;
-  font-weight: 600;
+  font-family: 'Sen', sans-serif;
+  font-size: 48px;
+  font-weight: 700;
   color: #ffffff;
   margin: 32px 0 10px;
-  line-height: 1.3;
+  line-height: 1.2;
 }
 
 .notion-content h2 {
-  font-size: 1.2rem;
-  font-weight: 600;
+  font-family: 'Sen', sans-serif;
+  font-size: 36px;
+  font-weight: 700;
   color: #ffffff;
   margin: 24px 0 8px;
-  line-height: 1.4;
+  line-height: 1.25;
 }
 
 .notion-content h3,
 .notion-content details h3 {
-  font-size: 15px;
-  font-weight: 500;
+  font-family: 'Sen', sans-serif;
+  font-size: 28px;
+  font-weight: 700;
   color: #dcdcdc;
   margin: 10px 0 4px;
-  line-height: 1.4;
+  line-height: 1.3;
 }
 
 .notion-content h4,
 .notion-content details h4 {
-  font-size: 14px;
-  font-weight: 500;
+  font-family: 'Sen', sans-serif;
+  font-size: 22px;
+  font-weight: 700;
   color: #c8c8c8;
   margin: 8px 0 4px;
 }
 
+.notion-content h5 {
+  font-family: 'Sen', sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  color: #c8c8c8;
+  margin: 8px 0 4px;
+}
+
+.notion-content h6 {
+  font-family: 'Sen', sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  color: #c8c8c8;
+  margin: 6px 0 4px;
+}
+
 /* ── Paragraphs ── */
 .notion-content p {
-  font-size: 15px;
+  font-family: 'Sen', sans-serif;
+  font-size: 16px;
+  font-weight: 400;
   line-height: 1.65;
   margin: 0 0 8px;
   color: #d4d4d4;
@@ -191,7 +213,8 @@ body {
 
 /* ── Strong ── */
 .notion-content strong {
-  font-weight: 600;
+  font-family: 'Sen', sans-serif;
+  font-weight: 700;
   color: #ffffff;
 }
 
@@ -326,9 +349,9 @@ body {
   content: '●';
   position: absolute;
   left: 0;
-  color: #555;
-  font-size: 7px;
-  top: 7px;
+  color: #aaaaaa;
+  font-size: 12px;
+  top: 4px;
 }
 
 /* Paragraph text inside those items — lighter, smaller */
@@ -407,10 +430,10 @@ body {
   white-space: normal;
 }
 
-/* INNER toggles (nested inside another details) — H3 weight */
+/* INNER toggles (nested inside another details) — H5 weight per typography system */
 .notion-content details details > summary {
-  font-size: 15px !important;
-  font-weight: 500;
+  font-size: 18px !important;
+  font-weight: 700;
   color: #dcdcdc;
   padding: 5px 6px;
 }
@@ -522,14 +545,14 @@ body {
 
 /* ── Desktop scale-up ── */
 @media (min-width: 768px) {
-  .notion-content h1 { font-size: 1.75rem; }
-  .notion-content h2 { font-size: 1.35rem; }
+  .notion-content h1 { font-size: 48px; }
+  .notion-content h2 { font-size: 36px; }
 }
 
 /* Mobile responsive */
 @media (max-width: 768px) {
   body {
-    padding: 12px;
+    padding: 16px;
   }
 
   .page-container {
@@ -556,32 +579,24 @@ body {
 
   /* Notion content */
   .notion-content {
-    font-size: 15px;
+    font-size: 16px;
     padding: 4px 0 32px;
   }
 
-  .notion-content h1 { font-size: 1.3rem; }
-  .notion-content h2 { font-size: 1.1rem; }
-  .notion-content h3 { font-size: 1rem; }
-
-  /* Reduce toggle indent on small screens */
-  .notion-content details > *:not(summary) {
-    padding-left: 8px;
-  }
-
-  .notion-content details details {
-    margin-left: 6px;
-  }
+  .notion-content h1 { font-size: 32px; }
+  .notion-content h2 { font-size: 26px; }
+  .notion-content h3 { font-size: 22px; }
+  .notion-content h4 { font-size: 18px; }
 
   /* Summary touch target */
   .notion-content details > summary {
     min-height: 44px;
     padding: 10px 6px;
-    font-size: 1rem !important;
+    font-size: 18px !important;
   }
 
   .notion-content details details > summary {
-    font-size: 14px !important;
+    font-size: 16px !important;
     min-height: 40px;
   }
 

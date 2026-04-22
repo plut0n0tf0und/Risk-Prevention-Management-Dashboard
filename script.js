@@ -90,7 +90,19 @@ function stripOuterTags(html, tabId) {
   const parser = new DOMParser();
   const doc = parser.parseFromString(html, 'text/html');
 
-  // Remove links wrapping images — unwrap the img, remove the anchor
+  // Force font size on all list items to match typography system
+  doc.querySelectorAll('li').forEach(li => {
+    li.style.setProperty('font-size', '16px', 'important');
+    li.style.setProperty('font-family', "'Sen', sans-serif", 'important');
+    li.style.setProperty('color', '#e6e6e6', 'important');
+  });
+
+  // Force font size on all paragraphs
+  doc.querySelectorAll('p').forEach(p => {
+    p.style.setProperty('font-size', '16px', 'important');
+    p.style.setProperty('font-family', "'Sen', sans-serif", 'important');
+    p.style.setProperty('color', '#d4d4d4', 'important');
+  });
   doc.querySelectorAll('a').forEach(a => {
     const img = a.querySelector('img');
     if (img) {
