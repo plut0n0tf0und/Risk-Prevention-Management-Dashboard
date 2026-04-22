@@ -90,7 +90,28 @@ function stripOuterTags(html, tabId) {
   const parser = new DOMParser();
   const doc = parser.parseFromString(html, 'text/html');
 
-  // Remove ALL figma links and their containers
+  // Fix relative image paths — rewrite to include the tab's folder path
+  doc.querySelectorAll('img').forEach(img => {
+    const src = img.getAttribute('src');
+    // Remove base64 images entirely
+    if (src && src.startsWith('data:image')) {
+      const figure = img.closest('figure') || img.parentElement;
+      if (figure) figure.remove();
+      else img.remove();
+      return;
+    }
+    if (src && !src.startsWith('http') && !src.startsWith('data:') && !src.startsWith('/')) {
+      img.setAttribute('src', `/content/${tabId}/${src}`);
+    }
+  });
+
+  // Fix relative anchor hrefs too
+  doc.querySelectorAll('a').forEach(a => {
+    const href = a.getAttribute('href');
+    if (href && !href.startsWith('http') && !href.startsWith('#') && !href.startsWith('/') && href.endsWith('.html')) {
+      a.setAttribute('href', `/content/${tabId}/${href}`);
+    }
+  });
   doc.querySelectorAll('a').forEach(a => {
     if ((a.href || '').includes('figma.com') || (a.textContent || '').includes('figma.com')) {
       const container = a.closest('figure') || a.closest('div[style]') || a.parentElement;
