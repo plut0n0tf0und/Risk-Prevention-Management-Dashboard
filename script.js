@@ -132,13 +132,6 @@ function stripOuterTags(html, tabId) {
       a.setAttribute('href', `/content/${tabId}/${href}`);
     }
   });
-  doc.querySelectorAll('a').forEach(a => {
-    if ((a.href || '').includes('figma.com') || (a.textContent || '').includes('figma.com')) {
-      const container = a.closest('figure') || a.closest('div[style]') || a.parentElement;
-      if (container && container !== doc.body) container.remove();
-      else a.remove();
-    }
-  });
 
   // Remove Notion internal bookmark cards (e.g. links to notion.so pages)
   doc.querySelectorAll('a.bookmark.source, a[class*="bookmark"]').forEach(a => {
@@ -260,9 +253,12 @@ function convertEmbedsInDoc(doc) {
 function resolveEmbedUrl(href) {
   if (!href) return null;
 
-  // Figma links — disabled, removed from design tab
+  // Figma links
   if (href.includes('figma.com')) {
-    return null;
+    // If it's already an embed URL, return it
+    if (href.includes('figma.com/embed')) return href;
+    // Otherwise, convert to embed URL
+    return `https://www.figma.com/embed?embed_host=share&url=${encodeURIComponent(href)}`;
   }
 
   // MockFlow
@@ -291,3 +287,85 @@ tabs.forEach(tab => {
 
 // Load first tab on init
 loadTab('project-overview');
+
+// ── Modal System ──
+let modalOverlay = null;
+
+function createModal() {
+  if (modalOverlay) return modalOverlay;
+
+  modalOverlay = document.createElement('div');
+  modalOverlay.className = 'modal-overlay';
+  modalOverlay.innerHTML = `
+    <div class="modal-container">
+      <button class="modal-close" aria-label="Close">Close</button>
+      <div class="modal-iframe-container"></div>
+    </div>
+  `;
+
+  document.body.appendChild(modalOverlay);
+
+  modalOverlay.querySelector('.modal-close').addEventListener('click', closeModal);
+  modalOverlay.addEventListener('click', (e) => {
+    if (e.target === modalOverlay) closeModal();
+  });
+
+  return modalOverlay;
+}
+
+function openModal(desktopUrl, mobileUrl, isPrototype) {
+  const modal = createModal();
+  const container = modal.querySelector('.modal-iframe-container');
+  const modalContainer = modal.querySelector('.modal-container');
+  const closeBtn = modal.querySelector('.modal-close');
+  const isMobile = window.innerWidth <= 768;
+  const url = (isMobile && mobileUrl) ? mobileUrl : desktopUrl;
+
+  // Reset classes
+  modalContainer.classList.remove('is-prototype');
+  if (isPrototype) {
+    modalContainer.classList.add('is-prototype');
+    closeBtn.innerHTML = '‹ Back';
+  } else {
+    closeBtn.innerHTML = 'Close';
+  }
+
+  // Apply mobile-specific sizing if on mobile
+  if (isMobile) {
+    modalContainer.style.width = '100%';
+    modalContainer.style.maxWidth = '100%';
+    modalContainer.style.height = 'calc(100% - 16px)'; // Consistent 8px padding top/bottom
+  } else {
+    modalContainer.style.width = '100%';
+    modalContainer.style.maxWidth = '1200px';
+    modalContainer.style.height = '85vh';
+  }
+
+  container.innerHTML = `<iframe src="${url}" allow="fullscreen" style="width:100%; height:100%; border:none;" loading="lazy"></iframe>`;
+  modal.classList.add('active');
+  document.body.style.overflow = 'hidden';
+  document.documentElement.style.overflow = 'hidden';
+}
+
+function closeModal() {
+  if (!modalOverlay) return;
+  modalOverlay.classList.remove('active');
+  document.body.style.overflow = '';
+  document.documentElement.style.overflow = '';
+  // Clean up iframe after animation
+  setTimeout(() => {
+    modalOverlay.querySelector('.modal-iframe-container').innerHTML = '';
+  }, 300);
+}
+
+// Global click listener for wireframe previews
+document.addEventListener('click', (e) => {
+  const preview = e.target.closest('.wireframe-preview');
+  if (preview) {
+    e.preventDefault();
+    const desktopUrl = preview.dataset.desktopUrl;
+    const mobileUrl = preview.dataset.mobileUrl;
+    const isPrototype = preview.dataset.isPrototype === 'true';
+    if (desktopUrl) openModal(desktopUrl, mobileUrl, isPrototype);
+  }
+});
